@@ -16,4 +16,9 @@ class CALCULATORTest < Test::Unit::TestCase
         result = CALCULATOR.compute '1 + 3 * 5'
         assert_equal 16, result
     end
+
+    def test_one_operand
+        result = CALCULATOR.compute '37'
+        assert_equal 37, result
+    end
 end

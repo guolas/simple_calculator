@@ -8,73 +8,50 @@ end
 
 class Core
     def initialize(input)
-        @operation = input.each_char
+        @operation_chars = input.each_char
         @operand = true
-        @log_enabled = false
+        @log_enabled = true
+        log input
     end
 
     def compute
         result = 0
         operand_string = ''
-        stack = []
-        multiplication = false
+        operands = []
+        operators = []
         loop do
-            log '--------'
-            log @operation
-            log('Current char ' + @operation.peek)
-            log('Multiplication ' + multiplication.to_s)
-            log('Stack before ' + stack.to_s)
-            current_char = @operation.peek
+            current_char = @operation_chars.peek
             if /\d/.match(current_char)
                 operand_string << current_char
             elsif /\S/.match(current_char)
-                stack << operand_string.to_i
+                operands << operand_string.to_i
                 operand_string = ''
-                if multiplication
-                    multiply stack
+                if current_char.eql? '+' and operands.size > 1
+                    apply(operators, operands)
                 end
-                multiplication = current_char.eql? '*'
-                if not multiplication and stack.size > 1
-                    log 'Addition, with an operand before'
-                    sum stack
-                end
+                operators << current_char
             end
-            log 'Multiplication after ' + multiplication.to_s
-            log 'Stack after ' + stack.to_s
-            @operation.next
+            @operation_chars.next
         end
 
-        log('Stack before ' + stack.to_s)
-        stack << operand_string.to_i
-        log('Stack after ' + stack.to_s)
-        if stack.size > 1
-            if multiplication
-                multiply stack
-            else
-                sum stack
-            end
+        operands << operand_string.to_i
+        if operands.size > 1
+            apply(operators, operands)
         end
-        log('Result ' + stack[0].to_s)
-        return stack[0]
+        return operands[0]
     end
 
-    def multiply(stack)
-        log 'Multiplication'
-        first_operand = stack.pop
-        second_operand = stack.pop
-        stack << first_operand * second_operand
-        if stack.size > 1
-            log 'Additional operand... sum'
-            first_operand = stack.pop
-            second_operand = stack.pop
-            stack << first_operand + second_operand
+    def apply(operators, operands)
+        while operands.size > 1
+            first_operand = operands.pop
+            second_operand = operands.pop
+            operator = operators.pop
+            if operator.eql? '*'
+                operands << first_operand * second_operand
+            elsif operator.eql? '+'
+                operands << first_operand + second_operand
+            end
         end
-    end
-
-    def sum(stack)
-        first_operand = stack.pop
-        second_operand = stack.pop
-        stack << first_operand + second_operand
     end
 
     def log(message)

@@ -21,4 +21,9 @@ class CALCULATORTest < Test::Unit::TestCase
         result = CALCULATOR.compute '37'
         assert_equal 37, result
     end
+
+    def test_multiple_operations
+        result = CALCULATOR.compute '2 + 3 * 5 + 7 + 31 + 93*11'
+        assert_equal 1078, result
+    end
 end

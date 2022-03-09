@@ -8,78 +8,79 @@ end
 
 class Core
     def initialize(input)
-        @operation = input
+        @operation = input.each_char
         @operand = true
-        @operator = false
+        @log_enabled = false
     end
 
-    def compute()
-        operation_enum = @operation.each_char
+    def compute
         result = 0
         operand_string = ''
         stack = []
         multiplication = false
         loop do
-            puts '--------'
-            puts @operation
-            puts 'Current char ' + operation_enum.peek
-            puts 'Multiplication ' + multiplication.to_s
-            puts 'Stack before ' + stack.to_s
-            current_char = operation_enum.peek
+            log '--------'
+            log @operation
+            log('Current char ' + @operation.peek)
+            log('Multiplication ' + multiplication.to_s)
+            log('Stack before ' + stack.to_s)
+            current_char = @operation.peek
             if /\d/.match(current_char)
                 operand_string << current_char
             elsif /\S/.match(current_char)
                 stack << operand_string.to_i
                 operand_string = ''
                 if multiplication
-                    puts 'Multiplication'
-                    first_operand = stack.pop
-                    second_operand = stack.pop
-                    stack << first_operand * second_operand
-                    if stack.size > 1
-                        puts 'Additional operand... sum'
-                        first_operand = stack.pop
-                        second_operand = stack.pop
-                        stack << first_operand + second_operand
-                    end
+                    multiply stack
                 end
                 multiplication = current_char.eql? '*'
-                if multiplication
-                    puts 'Multiplication after ' + multiplication.to_s
-                    puts 'Stack after ' + stack.to_s
-                    operation_enum.next
-                    next
-                elsif stack.size > 1
-                    puts 'Addition, with an operand before'
-                    first_operand = stack.pop
-                    second_operand = stack.pop
-                    stack << first_operand + second_operand
+                if not multiplication and stack.size > 1
+                    log 'Addition, with an operand before'
+                    sum stack
                 end
             end
-            puts 'Multiplication after ' + multiplication.to_s
-            puts 'Stack after ' + stack.to_s
-            operation_enum.next
+            log 'Multiplication after ' + multiplication.to_s
+            log 'Stack after ' + stack.to_s
+            @operation.next
         end
 
-        puts 'Stack before ' + stack.to_s
+        log('Stack before ' + stack.to_s)
         stack << operand_string.to_i
-        puts 'Stack after ' + stack.to_s
+        log('Stack after ' + stack.to_s)
         if stack.size > 1
-            first_operand = stack.pop
-            second_operand = stack.pop
             if multiplication
-                stack << first_operand * second_operand
-                if stack.size > 1
-                    puts 'Additional operand... sum'
-                    first_operand = stack.pop
-                    second_operand = stack.pop
-                    stack << first_operand + second_operand
-                end
+                multiply stack
             else
-                stack << first_operand + second_operand
+                sum stack
             end
         end
-        puts 'Result ' + stack[0].to_s
+        log('Result ' + stack[0].to_s)
         return stack[0]
     end
+
+    def multiply(stack)
+        log 'Multiplication'
+        first_operand = stack.pop
+        second_operand = stack.pop
+        stack << first_operand * second_operand
+        if stack.size > 1
+            log 'Additional operand... sum'
+            first_operand = stack.pop
+            second_operand = stack.pop
+            stack << first_operand + second_operand
+        end
+    end
+
+    def sum(stack)
+        first_operand = stack.pop
+        second_operand = stack.pop
+        stack << first_operand + second_operand
+    end
+
+    def log(message)
+        if @log_enabled
+            puts message
+        end
+    end
 end
+

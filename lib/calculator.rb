@@ -21,11 +21,7 @@ class Core
         operators = []
         loop do
             current_char = @operation_chars.peek
-            log '--------'
-            log current_char
-            log operands.to_s
-            log operators.to_s
-            if /\d/.match(current_char)
+            if /\d/.match current_char or '.'.eql? current_char
                 operand_string << current_char
             elsif /\S/.match(current_char)
                 parse_operand(operand_string, operands, operators[-1])
@@ -36,9 +32,6 @@ class Core
                 operators << current_char
             end
             @operation_chars.next
-            log '========'
-            log operands.to_s
-            log operators.to_s
         end
 
         parse_operand(operand_string, operands, operators[-1])
@@ -52,7 +45,7 @@ class Core
         if last_operator.eql? '/'
             operands << 1 / operand_string.to_f
         else
-            operands << operand_string.to_i
+            operands << operand_string.to_f
         end
     end
 

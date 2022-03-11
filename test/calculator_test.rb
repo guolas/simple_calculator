@@ -41,4 +41,19 @@ class CALCULATORTest < Test::Unit::TestCase
         result = CALCULATOR.compute '121/11/4*6+36-8/2'
         assert_equal 48.5, result
     end
+
+    def test_sum_decimal_numbers
+        result = CALCULATOR.compute '2.5 + 3.75'
+        assert_equal 6.25, result
+    end
+
+    def test_multiplication_decimal_numbers
+        result = CALCULATOR.compute '2.5 * 3.75'
+        assert_equal 9.375, result
+    end
+
+    def test_division_decimal_numbers
+        result = CALCULATOR.compute '6 / 0.75'
+        assert_equal 8, result
+    end
 end

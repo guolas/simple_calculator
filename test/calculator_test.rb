@@ -26,4 +26,19 @@ class CALCULATORTest < Test::Unit::TestCase
         result = CALCULATOR.compute '2 + 3 * 5 + 7 + 31 + 93*11'
         assert_equal 1078, result
     end
+
+    def test_division_two_numbers
+        result = CALCULATOR.compute '35 / 2'
+        assert_equal 17.5, result
+    end
+    
+    def test_chained_division
+        result = CALCULATOR.compute '121 / 11/4'
+        assert_equal 2.75, result
+    end
+
+    def test_mixed_operations
+        result = CALCULATOR.compute '121/11/4*6+36-8/2'
+        assert_equal 48.5, result
+    end
 end

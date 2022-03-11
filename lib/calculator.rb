@@ -10,7 +10,7 @@ class Core
     def initialize(input)
         @operation_chars = input.each_char
         @operand = true
-        @log_enabled = true
+        @log_enabled = false
         log input
     end
 
@@ -21,24 +21,39 @@ class Core
         operators = []
         loop do
             current_char = @operation_chars.peek
+            log '--------'
+            log current_char
+            log operands.to_s
+            log operators.to_s
             if /\d/.match(current_char)
                 operand_string << current_char
             elsif /\S/.match(current_char)
-                operands << operand_string.to_i
+                parse_operand(operand_string, operands, operators[-1])
                 operand_string = ''
-                if current_char.eql? '+' and operands.size > 1
+                if ['+', '-'].include? current_char and operands.size > 1
                     apply(operators, operands)
                 end
                 operators << current_char
             end
             @operation_chars.next
+            log '========'
+            log operands.to_s
+            log operators.to_s
         end
 
-        operands << operand_string.to_i
+        parse_operand(operand_string, operands, operators[-1])
         if operands.size > 1
             apply(operators, operands)
         end
         return operands[0]
+    end
+
+    def parse_operand(operand_string, operands, last_operator)
+        if last_operator.eql? '/'
+            operands << 1 / operand_string.to_f
+        else
+            operands << operand_string.to_i
+        end
     end
 
     def apply(operators, operands)
@@ -46,10 +61,12 @@ class Core
             first_operand = operands.pop
             second_operand = operands.pop
             operator = operators.pop
-            if operator.eql? '*'
-                operands << first_operand * second_operand
+            if ['*','/'].include? operator
+                operands << second_operand * first_operand
             elsif operator.eql? '+'
-                operands << first_operand + second_operand
+                operands << second_operand + first_operand
+            elsif operator.eql? '-'
+                operands << second_operand - first_operand
             end
         end
     end

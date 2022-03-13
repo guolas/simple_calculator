@@ -1,55 +1,56 @@
-class CALCULATOR
-    class << self
-        def compute(input)
-            Core.new(input).compute
-        end
-    end
-end
-
-class Core
-    def initialize(input)
-        @operation_chars = input.each_char
-        @operand = true
-        @log_enabled = false
-        log input
+module Calculator
+    def Calculator.log_enabled
+        return false
     end
 
-    def compute
-        result = 0
+    def Calculator.parse(input)
+        parsed_input = []
+        operation_chars = input.each_char
         operand_string = ''
-        operands = []
-        operators = []
         loop do
-            current_char = @operation_chars.peek
+            current_char = operation_chars.peek
             if /\d/.match current_char or '.'.eql? current_char
                 operand_string << current_char
             elsif /\S/.match(current_char)
-                parse_operand(operand_string, operands, operators[-1])
-                operand_string = ''
-                if ['+', '-'].include? current_char and operands.size > 1
-                    apply(operators, operands)
+                if ['+','-','*','/'].include? current_char
+                    parsed_input << operand_string.to_f
+                    parsed_input << current_char
+                    operand_string = ''
+                else
+                    log 'Unexpected character in input'
                 end
-                operators << current_char
             end
-            @operation_chars.next
+            operation_chars.next
         end
+        parsed_input << operand_string.to_f
+        return parsed_input
+    end
 
-        parse_operand(operand_string, operands, operators[-1])
-        if operands.size > 1
-            apply(operators, operands)
+    def Calculator.calculate(input)
+        log input.to_s
+        elements = input.each
+        operands = []
+        operators = []
+        loop do
+            element = elements.peek
+            if ['+', '-'].include? element
+                compute(operands, operators)
+                operators << element
+            elsif ['*', '/'].include? element
+                operators << element
+            else
+                if operators.size > 0 and '/'.eql? operators[-1]
+                    element = 1 / element.to_f
+                end
+                operands << element
+            end
+            elements.next
         end
+        compute(operands, operators)
         return operands[0]
     end
-
-    def parse_operand(operand_string, operands, last_operator)
-        if last_operator.eql? '/'
-            operands << 1 / operand_string.to_f
-        else
-            operands << operand_string.to_f
-        end
-    end
-
-    def apply(operators, operands)
+   
+    def Calculator.compute(operands, operators)
         while operands.size > 1
             first_operand = operands.pop
             second_operand = operands.pop
@@ -64,8 +65,8 @@ class Core
         end
     end
 
-    def log(message)
-        if @log_enabled
+    def Calculator.log(message)
+        if log_enabled
             puts message
         end
     end
